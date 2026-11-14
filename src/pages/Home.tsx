@@ -3,7 +3,7 @@ import { useApp } from '../context/AppContext';
 import { StoreCard } from '../components/StoreCard';
 import { CouponCard } from '../components/CouponCard';
 import { Store, Coupon } from '../types';
-import { Search, Sparkles, ShieldCheck, Zap, TrendingUp, Award, ArrowLeft, CheckCircle } from 'lucide-react';
+import { Search, Tag, ShieldCheck, Zap, TrendingUp, Award, ArrowLeft, CheckCircle } from 'lucide-react';
 
 interface HomeProps {
   onSelectCoupon: (coupon: Coupon, store: Store) => void;
@@ -45,7 +45,7 @@ export const Home: React.FC<HomeProps> = ({ onSelectCoupon, searchQuery, setSear
         
         <div className="relative max-w-4xl mx-auto text-center space-y-6">
           <div className="inline-flex items-center gap-2 bg-emerald-500/20 border border-emerald-500/30 px-4 py-2 rounded-full text-emerald-400 text-xs font-bold animate-pulse">
-            <Sparkles className="w-4 h-4" />
+            <Tag className="w-4 h-4" />
             أحدث أكواد خصم وعروض السعودية والخليج لعام 2026
           </div>
           
@@ -122,7 +122,7 @@ export const Home: React.FC<HomeProps> = ({ onSelectCoupon, searchQuery, setSear
               className="bg-white hover:bg-emerald-50/60 border border-slate-200/80 p-4 rounded-2xl text-center transition group flex flex-col items-center justify-center gap-2 shadow-xs hover:border-emerald-300"
             >
               <div className="w-12 h-12 bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white rounded-2xl flex items-center justify-center transition shadow-xs">
-                <Sparkles className="w-6 h-6" />
+                <Tag className="w-6 h-6" />
               </div>
               <span className="font-bold text-slate-800 text-xs group-hover:text-emerald-700 transition">{cat.name}</span>
               <span className="text-[10px] text-slate-400">{cat.couponCount || 20} كوبون</span>

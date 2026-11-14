@@ -39,24 +39,19 @@ function MainLayout() {
       />
 
       <main className="flex-1">
-        {isAdmin ? (
-          <AdminDashboard />
-        ) : (
-          <>
-            {currentView === 'home' && (
-              <Home 
-                onSelectCoupon={handleSelectCoupon}
-                searchQuery={searchQuery}
-                setSearchQuery={setSearchQuery}
-              />
-            )}
-            {currentView === 'stores' && <StoresPage />}
-            {currentView === 'store-detail' && <StoreDetailPage onSelectCoupon={handleSelectCoupon} />}
-            {currentView === 'categories' && <CategoriesPage />}
-            {currentView === 'coupons' && <CouponsPage onSelectCoupon={handleSelectCoupon} />}
-            {currentView === 'favorites' && <FavoritesPage onSelectCoupon={handleSelectCoupon} />}
-          </>
+        {currentView === 'home' && (
+          <Home 
+            onSelectCoupon={handleSelectCoupon}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+          />
         )}
+        {currentView === 'stores' && <StoresPage />}
+        {currentView === 'store-detail' && <StoreDetailPage onSelectCoupon={handleSelectCoupon} />}
+        {currentView === 'categories' && <CategoriesPage />}
+        {currentView === 'coupons' && <CouponsPage onSelectCoupon={handleSelectCoupon} />}
+        {currentView === 'favorites' && <FavoritesPage onSelectCoupon={handleSelectCoupon} />}
+        {currentView === 'admin' && <AdminDashboard />}
       </main>
 
       <Footer />

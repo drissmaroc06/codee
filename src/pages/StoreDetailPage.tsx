@@ -2,7 +2,7 @@ import React from 'react';
 import { useApp } from '../context/AppContext';
 import { CouponCard } from '../components/CouponCard';
 import { Coupon, Store } from '../types';
-import { Globe, ShieldCheck, Tag, ArrowRight, ExternalLink, Sparkles } from 'lucide-react';
+import { Globe, ShieldCheck, Tag, ArrowRight, ExternalLink } from 'lucide-react';
 
 interface StoreDetailPageProps {
   onSelectCoupon: (coupon: Coupon, store: Store) => void;
@@ -82,7 +82,7 @@ export const StoreDetailPage: React.FC<StoreDetailPageProps> = ({ onSelectCoupon
       {/* Active Coupons Section */}
       <div className="space-y-6">
         <h2 className="text-xl font-black text-slate-900 flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-emerald-600" />
+          <Tag className="w-5 h-5 text-emerald-600" />
           أكواد خصم وعروض {store.name} الفعالة
         </h2>
 

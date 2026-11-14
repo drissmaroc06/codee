@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { CountryCode } from '../types';
-import { Search, Heart, ShieldCheck, PlusCircle, LayoutDashboard, Menu, X, Sparkles, LogOut, Tag } from 'lucide-react';
-import { LoginModal } from './LoginModal';
+import { Search, Heart, ShieldCheck, PlusCircle, Menu, X, Tag } from 'lucide-react';
 
 interface NavbarProps {
   onOpenSubmit: () => void;
@@ -15,9 +14,6 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSubmit, searchQuery, setSe
     selectedCountry, 
     setSelectedCountry, 
     favorites, 
-    isAdmin, 
-    adminUser,
-    adminLogout,
     setCurrentView, 
     currentView,
     categories,
@@ -27,7 +23,6 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSubmit, searchQuery, setSe
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [countryDropdownOpen, setCountryDropdownOpen] = useState(false);
-  const [loginModalOpen, setLoginModalOpen] = useState(false);
 
   const countries: { code: CountryCode; name: string; flag: string }[] = [
     { code: 'SA', name: 'السعودية', flag: '🇸🇦' },
@@ -87,34 +82,6 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSubmit, searchQuery, setSe
                 </div>
               )}
             </div>
-
-            {/* Admin Authentication Action */}
-            {isAdmin ? (
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setCurrentView(currentView === 'admin' ? 'home' : 'admin')}
-                  className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-amber-500 text-white shadow-sm"
-                >
-                  <LayoutDashboard className="w-3.5 h-3.5" />
-                  <span>{currentView === 'admin' ? 'العودة للموقع' : 'لوحة التحكم'}</span>
-                </button>
-                <button
-                  onClick={() => adminLogout()}
-                  className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-slate-800 hover:bg-rose-900 text-rose-300 transition"
-                  title="تسجيل الخروج"
-                >
-                  <LogOut className="w-3 h-3" />
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={() => setLoginModalOpen(true)}
-                className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-slate-800 hover:bg-slate-700 text-amber-300 transition"
-              >
-                <LayoutDashboard className="w-3.5 h-3.5" />
-                <span>دخول المشرف</span>
-              </button>
-            )}
           </div>
         </div>
       </div>
@@ -267,10 +234,6 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSubmit, searchQuery, setSe
             شارك كوبون خصم
           </button>
         </div>
-      )}
-
-      {loginModalOpen && (
-        <LoginModal onClose={() => setLoginModalOpen(false)} />
       )}
 
     </header>

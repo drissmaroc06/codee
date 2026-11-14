@@ -1,6 +1,6 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
-import { Sparkles, ShieldCheck, Heart, ArrowUpLeft, Mail, Phone, MapPin } from 'lucide-react';
+import { Tag, ShieldCheck, Heart, ArrowUpLeft, Mail, Phone, MapPin } from 'lucide-react';
 
 export const Footer: React.FC = () => {
   const { setCurrentView, categories, stores } = useApp();
@@ -13,7 +13,7 @@ export const Footer: React.FC = () => {
         <div className="lg:col-span-2 space-y-4">
           <div className="flex items-center gap-2.5">
             <div className="w-10 h-10 bg-emerald-600 rounded-2xl flex items-center justify-center text-white shadow">
-              <Sparkles className="w-5 h-5" />
+              <Tag className="w-5 h-5" />
             </div>
             <h2 className="text-xl font-black text-white">أقوى كود</h2>
           </div>

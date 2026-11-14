@@ -1,6 +1,6 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
-import { Sparkles, ArrowLeft, Tag } from 'lucide-react';
+import { Tag, ArrowLeft } from 'lucide-react';
 
 export const CategoriesPage: React.FC = () => {
   const { categories, stores, setCurrentView, setActiveCategoryId } = useApp();
@@ -28,7 +28,7 @@ export const CategoriesPage: React.FC = () => {
             >
               <div>
                 <div className="w-14 h-14 bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white rounded-2xl flex items-center justify-center transition shadow-xs mb-4">
-                  <Sparkles className="w-7 h-7" />
+                  <Tag className="w-7 h-7" />
                 </div>
                 <h3 className="text-lg font-bold text-slate-900 group-hover:text-emerald-600 transition mb-2">
                   {cat.name}

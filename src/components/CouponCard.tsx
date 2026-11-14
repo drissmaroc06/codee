@@ -1,7 +1,7 @@
 import React from 'react';
 import { Coupon, Store } from '../types';
 import { useApp } from '../context/AppContext';
-import { ShieldCheck, Sparkles, Heart, Copy, ArrowLeft, CheckCircle2 } from 'lucide-react';
+import { ShieldCheck, Tag, Heart, Copy, ArrowLeft, CheckCircle2 } from 'lucide-react';
 
 interface CouponCardProps {
   coupon: Coupon;
@@ -49,7 +49,7 @@ export const CouponCard: React.FC<CouponCardProps> = ({ coupon, store, onSelectC
             )}
             {coupon.isExclusive && (
               <span className="flex items-center gap-1 bg-amber-50 text-amber-700 text-[11px] font-bold px-2.5 py-1 rounded-full border border-amber-200/60">
-                <Sparkles className="w-3.5 h-3.5" />
+                <Tag className="w-3.5 h-3.5" />
                 حصري
               </span>
             )}
