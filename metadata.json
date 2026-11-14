@@ -1,0 +1,8 @@
+{
+  "name": "أقوى كود - منصة الكوبونات والخصومات",
+  "description": "منصة الكوبونات والعروض الأولى في المملكة العربية السعودية والخليج العربي مع خصومات حصرية وموثوقة لآلاف المتاجر.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

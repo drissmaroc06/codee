@@ -1,0 +1,216 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model AdminUser {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  passwordHash String
+  name         String
+  roleId       Int
+  role         Role     @relation(fields: [roleId], references: [id])
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  clickLogs    ClickLog[]
+}
+
+model Role {
+  id          Int          @id @default(autoincrement())
+  name        String       @unique
+  description String?
+  users       AdminUser[]
+  permissions Permission[] @relation("RolePermissions")
+}
+
+model Permission {
+  id          Int    @id @default(autoincrement())
+  name        String @unique
+  description String?
+  roles       Role[] @relation("RolePermissions")
+}
+
+model Country {
+  id        Int     @id @default(autoincrement())
+  code      String  @unique // SA, AE, KW, etc.
+  nameAr    String
+  nameEn    String
+  isActive  Boolean @default(true)
+  stores    Store[]
+  coupons   Coupon[]
+}
+
+model Category {
+  id          Int         @id @default(autoincrement())
+  nameAr      String
+  nameEn      String
+  slug        String      @unique
+  description String?     @db.Text
+  icon        String?
+  parentId    Int?
+  parent      Category?   @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
+  children    Category[]  @relation("CategoryHierarchy")
+  stores      Store[]
+  storeCats   StoreCategory[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model Store {
+  id            Int          @id @default(autoincrement())
+  nameAr        String
+  nameEn        String
+  slug          String       @unique
+  url           String
+  logoUrl       String?
+  bannerUrl     String?
+  shortDescAr   String?      @db.Text
+  fullDescAr    String?      @db.Text
+  categoryId    Int
+  category      Category     @relation(fields: [categoryId], references: [id])
+  countryId     Int?
+  country       Country?     @relation(fields: [countryId], references: [id])
+  isFeatured    Boolean      @default(false)
+  priority      Int          @default(0)
+  status        String       @default("published") // published, draft, archived
+  seoTitle      String?
+  seoDesc       String?      @db.Text
+  focusKeyword  String?
+  coupons       Coupon[]
+  storeCats     StoreCategory[]
+  seoMeta       SEOmetadata?
+  clickLogs     ClickLog[]
+  favorites     Favorite[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  deletedAt     DateTime?
+}
+
+model StoreCategory {
+  storeId    Int
+  categoryId Int
+  store      Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([storeId, categoryId])
+}
+
+model Coupon {
+  id            Int         @id @default(autoincrement())
+  titleAr       String
+  code          String
+  descriptionAr String?     @db.Text
+  storeId       Int
+  store         Store       @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  discountValue String
+  offerType     String      // discount_code, automatic, sale, free_shipping, special_deal
+  expiryDate    String?
+  countryId     Int?
+  country       Country?    @relation(fields: [countryId], references: [id])
+  status        String      @default("published") // published, expired, pending, disabled, rejected
+  isFeatured    Boolean     @default(false)
+  isVerified    Boolean     @default(true)
+  isExclusive   Boolean     @default(false)
+  priority      Int         @default(0)
+  startDate     String?
+  affiliateUrl  String?
+  usageCount    Int         @default(0)
+  successRate   Int         @default(98)
+  clickLogs     ClickLog[]
+  favorites     Favorite[]
+  submissions   UserSubmission[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  deletedAt     DateTime?
+}
+
+model Media {
+  id        Int      @id @default(autoincrement())
+  filename  String
+  url       String
+  mimeType  String
+  size      Int
+  createdAt DateTime @default(now())
+}
+
+model SEOmetadata {
+  id          Int     @id @default(autoincrement())
+  storeId     Int?    @unique
+  store       Store?  @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  title       String?
+  description String? @db.Text
+  keywords    String?
+  canonical   String?
+  ogImage     String?
+}
+
+model ClickLog {
+  id        Int       @id @default(autoincrement())
+  couponId  Int?
+  coupon    Coupon?   @relation(fields: [couponId], references: [id], onDelete: SetNull)
+  storeId   Int?
+  store     Store?    @relation(fields: [storeId], references: [id], onDelete: SetNull)
+  userId    Int?
+  user      AdminUser? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  type      String    // copy_code, reveal_code, store_visit
+  userAgent String?
+  ipAddress String?
+  timestamp DateTime  @default(now())
+}
+
+model SiteSettings {
+  id                  Int     @id @default(autoincrement())
+  key                 String  @unique
+  value               String  @db.Text
+  group               String  @default("general")
+  updatedAt           DateTime @updatedAt
+}
+
+model UserSubmission {
+  id           Int      @id @default(autoincrement())
+  storeName    String
+  couponCode   String
+  discount     String?
+  description  String?  @db.Text
+  status       String   @default("pending") // pending, approved, rejected
+  couponId     Int?
+  coupon       Coupon?  @relation(fields: [couponId], references: [id], onDelete: SetNull)
+  createdAt    DateTime @default(now())
+}
+
+model Favorite {
+  id       Int     @id @default(autoincrement())
+  sessionId String
+  storeId  Int?
+  store    Store?  @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  couponId Int?
+  coupon   Coupon? @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model ImportBatch {
+  id           Int          @id @default(autoincrement())
+  filename     String
+  totalRows    Int          @default(0)
+  successRows  Int          @default(0)
+  failedRows   Int          @default(0)
+  status       String       @default("completed") // pending, processing, completed, failed
+  logs         ImportLog[]
+  createdAt    DateTime     @default(now())
+}
+
+model ImportLog {
+  id            Int         @id @default(autoincrement())
+  batchId       Int
+  batch         ImportBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  recordType    String      // store, coupon
+  recordName    String
+  status        String      // success, duplicate, failed
+  errorMessage  String?     @db.Text
+  createdAt     DateTime    @default(now())
+}
