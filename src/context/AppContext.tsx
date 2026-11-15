@@ -156,57 +156,38 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     );
   };
 
-  // Background fetch from API or CSV dataset
+  // Load production data exclusively from Hostinger MySQL via Express API
   useEffect(() => {
     const loadData = async () => {
       try {
-        let storesData: Store[] = [];
-        let couponsData: Coupon[] = [];
+        const [storesRes, couponsRes, categoriesRes, logsRes] = await Promise.all([
+          api.getStores().catch(() => ({ data: [], pagination: { total: 0 } })),
+          api.getCoupons().catch(() => ({ data: [], pagination: { total: 0 } })),
+          api.getCategories().catch(() => []),
+          api.getClickLogs().catch(() => [])
+        ]);
 
-        try {
-          storesData = await api.getStores();
-          couponsData = await api.getCoupons();
-        } catch (apiErr) {
-          // API failed or not running, load from CSV dataset
-        }
+        const storesData = (storesRes as any).data || storesRes;
+        const couponsData = (couponsRes as any).data || couponsRes;
 
-        if (!storesData || storesData.length <= 20) {
-          const csvData = await loadAndParseCSV();
-          storesData = csvData.stores;
-          couponsData = csvData.coupons;
-        }
-
-        if (storesData && storesData.length > 0) {
+        if (storesData && Array.isArray(storesData)) {
           setStores(storesData);
-          localStorage.setItem('aqwacode_stores', JSON.stringify(storesData));
         }
-        if (couponsData && couponsData.length > 0) {
+        if (couponsData && Array.isArray(couponsData)) {
           setCoupons(couponsData);
-          localStorage.setItem('aqwacode_coupons', JSON.stringify(couponsData));
         }
-
-        const logsData = await api.getClickLogs().catch(() => []);
-        if (logsData && logsData.length > 0) {
-          setClickLogs(logsData);
+        if (logsRes && Array.isArray(logsRes)) {
+          setClickLogs(logsRes);
         }
 
         logDatasetMetrics(
-          storesData?.length || stores.length,
-          couponsData?.length || coupons.length,
-          storesData?.length > 20 ? 'Full CSV / Database Dataset' : 'Local Fallback Storage'
+          storesData?.length || 0,
+          couponsData?.length || 0,
+          'Hostinger MySQL Database via Express API'
         );
       } catch (err) {
-        console.warn('Dataset load fallback active:', err);
-        try {
-          const csvData = await loadAndParseCSV();
-          if (csvData.stores.length > 0) {
-            setStores(csvData.stores);
-            setCoupons(csvData.coupons);
-            localStorage.setItem('aqwacode_stores', JSON.stringify(csvData.stores));
-            localStorage.setItem('aqwacode_coupons', JSON.stringify(csvData.coupons));
-          }
-        } catch (e) {}
-        logDatasetMetrics(stores.length, coupons.length, 'Local Fallback Storage');
+        console.error('Failed to load production data from MySQL API:', err);
+        logDatasetMetrics(0, 0, 'Error Loading from MySQL API');
       }
     };
     loadData();
