@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Store, Coupon, Category, CountryCode, ImportReport, SiteSettings, ClickLog } from '../types';
 import { INITIAL_STORES, INITIAL_COUPONS, INITIAL_CATEGORIES, INITIAL_IMPORT_REPORT, INITIAL_SETTINGS } from '../data/initialData';
 import { api } from '../services/api';
+import { loadAndParseCSV } from '../utils/csvImporter';
 
 interface AppContextType {
   stores: Store[];
@@ -155,23 +156,36 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     );
   };
 
-  // Optional background fetch from API
+  // Background fetch from API or CSV dataset
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [storesData, couponsData, categoriesData, logsData] = await Promise.all([
-          api.getStores().catch(() => []),
-          api.getCoupons().catch(() => []),
-          api.getCategories().catch(() => []),
-          api.getClickLogs().catch(() => [])
-        ]);
+        let storesData: Store[] = [];
+        let couponsData: Coupon[] = [];
+
+        try {
+          storesData = await api.getStores();
+          couponsData = await api.getCoupons();
+        } catch (apiErr) {
+          // API failed or not running, load from CSV dataset
+        }
+
+        if (!storesData || storesData.length <= 20) {
+          const csvData = await loadAndParseCSV();
+          storesData = csvData.stores;
+          couponsData = csvData.coupons;
+        }
 
         if (storesData && storesData.length > 0) {
           setStores(storesData);
+          localStorage.setItem('aqwacode_stores', JSON.stringify(storesData));
         }
         if (couponsData && couponsData.length > 0) {
           setCoupons(couponsData);
+          localStorage.setItem('aqwacode_coupons', JSON.stringify(couponsData));
         }
+
+        const logsData = await api.getClickLogs().catch(() => []);
         if (logsData && logsData.length > 0) {
           setClickLogs(logsData);
         }
@@ -179,10 +193,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         logDatasetMetrics(
           storesData?.length || stores.length,
           couponsData?.length || coupons.length,
-          storesData?.length > 0 ? 'MySQL Database via Express API' : 'Local Fallback Storage'
+          storesData?.length > 20 ? 'Full CSV / Database Dataset' : 'Local Fallback Storage'
         );
       } catch (err) {
-        console.warn('API sync fallback active:', err);
+        console.warn('Dataset load fallback active:', err);
+        try {
+          const csvData = await loadAndParseCSV();
+          if (csvData.stores.length > 0) {
+            setStores(csvData.stores);
+            setCoupons(csvData.coupons);
+            localStorage.setItem('aqwacode_stores', JSON.stringify(csvData.stores));
+            localStorage.setItem('aqwacode_coupons', JSON.stringify(csvData.coupons));
+          }
+        } catch (e) {}
         logDatasetMetrics(stores.length, coupons.length, 'Local Fallback Storage');
       }
     };
