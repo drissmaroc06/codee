@@ -10,6 +10,7 @@ import couponsRoutes from './routes/coupons.routes';
 import categoriesRoutes from './routes/categories.routes';
 import analyticsRoutes from './routes/analytics.routes';
 import importRoutes from './routes/import.routes';
+import systemRoutes from './routes/system.routes';
 import { errorHandler } from './middleware/error.middleware';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -44,6 +45,7 @@ export const createApp = () => {
   app.use('/api/categories', categoriesRoutes);
   app.use('/api/analytics', analyticsRoutes);
   app.use('/api/import', importRoutes);
+  app.use('/api/system', systemRoutes);
 
   // Serve static files from Vite dist in production
   const distPath = path.resolve(__dirname, '../dist');

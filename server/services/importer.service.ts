@@ -32,6 +32,13 @@ function parseCSVLine(text: string): string[] {
 }
 
 export async function runFullDataImport() {
+  const activeBatch = await prisma.importBatch.findFirst({
+    where: { status: 'processing' },
+  });
+  if (activeBatch) {
+    throw new Error('An import batch is already currently processing. Concurrent imports are locked.');
+  }
+
   const batch = await prisma.importBatch.create({
     data: {
       filename: 'coupons_export_2026-11-12.csv',

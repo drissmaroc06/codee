@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { Store, Coupon, Category, CouponStatus } from '../types';
+import { api } from '../services/api';
 import { 
   LayoutDashboard, Store as StoreIcon, Tag, FileText, 
   Settings, Database, Plus, Trash2, Edit3, CheckCircle, 
@@ -16,6 +17,25 @@ export const AdminDashboard: React.FC = () => {
   } = useApp();
 
   const [activeTab, setActiveTab] = useState<'overview' | 'stores' | 'coupons' | 'categories' | 'import' | 'analytics' | 'settings'>('overview');
+
+  const [dbStatus, setDbStatus] = useState<any>(null);
+  const [testingDb, setTestingDb] = useState(false);
+
+  const testDatabaseConnection = async () => {
+    setTestingDb(true);
+    try {
+      const res = await api.checkDbStatus();
+      setDbStatus(res);
+    } catch (err) {
+      setDbStatus({ success: false, status: 'disconnected', error: 'فشل الاتصال بالخادم' });
+    } finally {
+      setTestingDb(false);
+    }
+  };
+
+  React.useEffect(() => {
+    testDatabaseConnection();
+  }, []);
 
   // Modal / Form states
   const [storeModalOpen, setStoreModalOpen] = useState(false);
@@ -216,6 +236,67 @@ export const AdminDashboard: React.FC = () => {
       {/* TAB 1: OVERVIEW */}
       {activeTab === 'overview' && (
         <div className="space-y-8 animate-fadeIn">
+          {/* Hostinger MySQL Database Status Card */}
+          <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xs space-y-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center">
+                  <Database className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">حالة اتصال قاعدة بيانات Hostinger MySQL</h3>
+                  <p className="text-xs text-slate-500">فحص وتأكيد الاتصال الحي مع خادم قاعدة البيانات عبر Prisma</p>
+                </div>
+              </div>
+              <button
+                onClick={testDatabaseConnection}
+                disabled={testingDb}
+                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs flex items-center gap-2 transition disabled:opacity-50"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${testingDb ? 'animate-spin' : ''}`} />
+                <span>اختبار الاتصال الآن</span>
+              </button>
+            </div>
+
+            {dbStatus ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
+                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-1">
+                  <span className="text-[11px] text-slate-500 font-medium">حالة الاتصال</span>
+                  <div className="flex items-center gap-2 font-bold text-sm">
+                    {dbStatus.status === 'connected' ? (
+                      <span className="flex items-center gap-1.5 text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full text-xs">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        متصل بنجاح
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1.5 text-rose-600 bg-rose-50 px-2.5 py-1 rounded-full text-xs">
+                        <span className="w-2 h-2 rounded-full bg-rose-500"></span>
+                        غير متصل
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-1">
+                  <span className="text-[11px] text-slate-500 font-medium">سرعة الاستجابة (Latency)</span>
+                  <p className="text-sm font-black text-slate-800">{dbStatus.latency || 'غير متوفر'}</p>
+                </div>
+
+                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-1">
+                  <span className="text-[11px] text-slate-500 font-medium">خادم قاعدة البيانات</span>
+                  <p className="text-sm font-bold text-slate-800 truncate" title={dbStatus.host}>{dbStatus.host || 'Hostinger MySQL'}</p>
+                </div>
+
+                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-1">
+                  <span className="text-[11px] text-slate-500 font-medium">الجداول النشطة (Tables)</span>
+                  <p className="text-sm font-black text-indigo-600">{dbStatus.stats?.tablesCount || 16} جدول</p>
+                </div>
+              </div>
+            ) : (
+              <div className="py-6 text-center text-xs text-slate-400">جاري فحص حالة الاتصال بقاعدة البيانات...</div>
+            )}
+          </div>
+
           {/* Stats Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xs flex items-center justify-between">

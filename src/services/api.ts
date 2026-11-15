@@ -141,5 +141,10 @@ export const api = {
     const res = await fetch(`${API_BASE}/import/stats`, { credentials: 'omit' });
     const json = await res.json();
     return json.success ? json.data : null;
+  },
+
+  async checkDbStatus() {
+    const res = await fetch(`${API_BASE}/system/db-status`, { credentials: 'omit' });
+    return res.json();
   }
 };
